@@ -2,16 +2,22 @@ package com.mygdx.tilemaptest;
 
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.mygdx.tilemaptest.entities.Player;
 
 public class Play implements Screen {
 
     private TiledMap map;
     private OrthogonalTiledMapRenderer renderer;
     private OrthographicCamera camera;
+    private Player player;
+    private SpriteBatch spritebatch;
 
     @Override
     public void render(float delta) {
@@ -19,6 +25,11 @@ public class Play implements Screen {
 
         renderer.setView(camera);
         renderer.render(); //takes a layers[] argument if we want to specifically render certain layers
+
+        renderer.getBatch().begin();
+        player.draw(renderer.getBatch());
+        renderer.getBatch().end();
+
     }
 
     @Override
@@ -32,6 +43,9 @@ public class Play implements Screen {
 
         renderer = new OrthogonalTiledMapRenderer(map); //can also take a scale argument
         camera = new OrthographicCamera(); //don't need to specify width and height because resize() is called after show()
+
+        spritebatch = new SpriteBatch();
+        player = new Player(new Sprite(new Texture("player.png")));
     }
 
     @Override
@@ -58,8 +72,13 @@ public class Play implements Screen {
 
     @Override
     public void dispose() {
+        //if we forget to dispose something it causes a memory leak!
+        //if this is a big concern we should change our approach to assets
+        //using the AssetManager means we have to load assets in a different way
+        //BUT we can just call AssetManager.dispose() and it will for sure dispose all our assets correctly
+
         map.dispose();
         renderer.dispose();
-        //renderer contains it's own spritebatch so has to be disposed
+        player.getTexture().dispose();
     }
 }
