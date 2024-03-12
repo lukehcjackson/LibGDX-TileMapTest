@@ -24,6 +24,9 @@ public class Play implements Screen {
     public void render(float delta) {
         ScreenUtils.clear(0,0,0,1);
 
+        camera.position.set(player.getX() + player.getWidth() / 2, player.getY() + player.getHeight() / 2, 0);
+        camera.update();
+
         renderer.setView(camera);
         renderer.render(); //takes a layers[] argument if we want to specifically render certain layers
 
@@ -59,9 +62,9 @@ public class Play implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        camera.viewportWidth = width;
-        camera.viewportHeight = height;
-        camera.update();
+        camera.viewportWidth = width / 4f;
+        camera.viewportHeight = height / 4f;
+        //camera.update();
     }
 
     @Override

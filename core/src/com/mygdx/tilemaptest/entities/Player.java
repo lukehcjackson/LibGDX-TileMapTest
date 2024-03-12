@@ -113,7 +113,7 @@ public class Player extends Sprite implements InputProcessor {
         if (collisionX) {
             setX(oldX);
             velocity.x = 0;
-        }
+        } //could put an else here to fix bug where colliding with something stops all movement in that direction
 
         //repeat for y position
         setY(getY() + velocity.y * delta);
