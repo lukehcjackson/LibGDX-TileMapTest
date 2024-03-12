@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -17,7 +18,6 @@ public class Play implements Screen {
     private OrthogonalTiledMapRenderer renderer;
     private OrthographicCamera camera;
     private Player player;
-    private SpriteBatch spritebatch;
 
     @Override
     public void render(float delta) {
@@ -44,8 +44,10 @@ public class Play implements Screen {
         renderer = new OrthogonalTiledMapRenderer(map); //can also take a scale argument
         camera = new OrthographicCamera(); //don't need to specify width and height because resize() is called after show()
 
-        spritebatch = new SpriteBatch();
-        player = new Player(new Sprite(new Texture("player.png")));
+        player = new Player(new Sprite(new Texture("player.png")), (TiledMapTileLayer) map.getLayers().get(0));
+        float startX = 9 * player.getCollisionLayer().getTileWidth();
+        float startY = (player.getCollisionLayer().getHeight() - 4) * player.getCollisionLayer().getTileHeight();
+        player.setPosition(startX, startY);
     }
 
     @Override

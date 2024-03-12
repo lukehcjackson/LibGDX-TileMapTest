@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
 
 public class Player extends Sprite {
@@ -12,10 +13,17 @@ public class Player extends Sprite {
     private float speed = 120;
     private float gravity = 1;
 
-    public Player(Sprite playerSprite) {
+    private TiledMapTileLayer collisionLayer;
+
+    public Player(Sprite playerSprite, TiledMapTileLayer collisionLayer) {
         //call super constructor - i.e. the constructor of the Sprite class, which takes the player sprite as an argument
         super(playerSprite);
+        this.collisionLayer = collisionLayer;
 
+    }
+
+    public TiledMapTileLayer getCollisionLayer() {
+        return collisionLayer;
     }
 
     public void draw(Batch spritebatch) {
@@ -24,6 +32,12 @@ public class Player extends Sprite {
     }
 
     public void update(float delta) {
+
+
+        //surely gravity is not really relevant to our end goal
+        //this player movement system should be modified to account for this - no gravity, up/down movement
+
+
         //apply gravity
         velocity.y -= gravity * delta;
         //clamp velocity - because otherwise it's y will become massively negative as we subtract from it every frame
@@ -33,13 +47,118 @@ public class Player extends Sprite {
             velocity.y = -speed;
         }
 
-        //apply velocity to the player's position
-        setX(getX() + velocity.x * delta);
-        setY(getY() + velocity.y * delta);
-    }
 
-    public Vector2 getPlayerPos() {
-        return new Vector2(getX(),getY());
+        //**********************
+        //  COLLISION DETECTION
+        //**********************
+
+        //save old x,y positions
+        float oldX = getX();
+        float oldY = getY();
+        //variables to say if we're colliding with something
+        boolean collisionX = false, collisionY = false;
+        //map tile properties
+        float tileWidth = collisionLayer.getTileWidth();
+        float tileHeight = collisionLayer.getTileHeight();
+
+        //update x position
+        setX(getX() + velocity.x * delta);
+
+        //do the collision detection
+        if (velocity.x < 0) {
+            //player moving left
+            //want to check the tiles to the left, up/left and down/left
+
+            //top left
+            collisionX = collisionLayer.getCell((int)(getX() / tileWidth), (int)((getY() + getHeight()) / tileHeight))
+                    .getTile().getProperties().containsKey("blocked");
+            //disgusting line
+            //get the cell at the player's top-left, get the tile at that cell, get that tile's properties, if it contains "blocked" then true
+
+            //middle left
+            if (!collisionX) { //if no collision yet
+                collisionX = collisionLayer.getCell((int) (getX() / tileWidth), (int) ((getY() + (getHeight() / 2)) / tileHeight))
+                        .getTile().getProperties().containsKey("blocked");
+            }
+            //bottom left
+            if (!collisionX) {
+                collisionX = collisionLayer.getCell((int) (getX() / tileWidth), (int) (getY() / tileHeight))
+                        .getTile().getProperties().containsKey("blocked");
+            }
+        } else if (velocity.x > 0) {
+            //player moving right
+
+            //top right
+            collisionX = collisionLayer.getCell((int)((getX() + getWidth())/ tileWidth), (int)((getY() + getHeight()) / tileHeight))
+                    .getTile().getProperties().containsKey("blocked");
+
+            //middle right
+            if (!collisionX) {
+                collisionX = collisionLayer.getCell((int)((getX() + getWidth())/ tileWidth), (int)((getY() + getHeight() / 2) / tileHeight))
+                        .getTile().getProperties().containsKey("blocked");
+            }
+
+            //bottom right
+            if (!collisionX) {
+                collisionX = collisionLayer.getCell((int)((getX() + getWidth())/ tileWidth), (int)(getY() / tileHeight))
+                        .getTile().getProperties().containsKey("blocked");
+            }
+
+        }
+
+        //correct x-axis movement
+        if (collisionX) {
+            setX(oldX);
+            velocity.x = 0;
+        }
+
+        //repeat for y position
+        setY(getY() + velocity.y * delta);
+
+        if (velocity.y < 0) {
+            //player moving downwards
+
+            //bottom left
+            collisionY = collisionLayer.getCell((int)((getX())/ tileWidth), (int)(getY() / tileHeight))
+                    .getTile().getProperties().containsKey("blocked");
+
+            //bottom middle
+            if (!collisionY) {
+                collisionY = collisionLayer.getCell((int)((getX() + getWidth() / 2)/ tileWidth), (int)(getY() / tileHeight))
+                        .getTile().getProperties().containsKey("blocked");
+            }
+
+            //bottom right
+            if (!collisionY) {
+                collisionY = collisionLayer.getCell((int)((getX() + getWidth())/ tileWidth), (int)(getY() / tileHeight))
+                        .getTile().getProperties().containsKey("blocked");
+            }
+
+        } else if (velocity.x > 0) {
+            //player moving upwards
+
+            //top left
+            collisionY = collisionLayer.getCell((int)((getX())/ tileWidth), (int)((getY() + getHeight())/ tileHeight))
+                    .getTile().getProperties().containsKey("blocked");
+
+            //top middle
+            if (!collisionY) {
+                collisionY = collisionLayer.getCell((int)((getX() + getWidth() / 2)/ tileWidth), (int)((getY() + getHeight())/ tileHeight))
+                        .getTile().getProperties().containsKey("blocked");
+            }
+
+            //top right
+            if (!collisionY) {
+                collisionY = collisionLayer.getCell((int)((getX() + getWidth())/ tileWidth), (int)((getY() + getHeight())/ tileHeight))
+                        .getTile().getProperties().containsKey("blocked");
+            }
+        }
+
+        //react to y collision
+        if (collisionY) {
+            setY(oldY);
+            velocity.y = 0;
+        }
     }
 
 }
