@@ -1,13 +1,15 @@
 package com.mygdx.tilemaptest.entities;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
 
-public class Player extends Sprite {
+public class Player extends Sprite implements InputProcessor {
     //movement velocity - Vector2 stores 2 values, for x and y
     private Vector2 velocity = new Vector2();
     private float speed = 120;
@@ -37,7 +39,7 @@ public class Player extends Sprite {
         //surely gravity is not really relevant to our end goal
         //this player movement system should be modified to account for this - no gravity, up/down movement
 
-
+        /*
         //apply gravity
         velocity.y -= gravity * delta;
         //clamp velocity - because otherwise it's y will become massively negative as we subtract from it every frame
@@ -46,6 +48,7 @@ public class Player extends Sprite {
         } else if (velocity.y < speed) {
             velocity.y = -speed;
         }
+         */
 
 
         //**********************
@@ -159,6 +162,81 @@ public class Player extends Sprite {
             setY(oldY);
             velocity.y = 0;
         }
+    }
+
+    ////////////////////
+    //INPUT HANDLING
+    ///////////////////
+
+    @Override
+    public boolean keyDown(int keycode) {
+        switch (keycode) {
+            case Input.Keys.W:
+                velocity.y = speed;
+                break;
+            case Input.Keys.A:
+                velocity.x = -speed;
+                break;
+            case Input.Keys.S:
+                velocity.y = -speed;
+                break;
+            case Input.Keys.D:
+                velocity.x = speed;
+                break;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean keyUp(int keycode) {
+        switch (keycode) {
+            case Input.Keys.A:
+            case Input.Keys.D:
+                velocity.x = 0;
+                break;
+            case Input.Keys.W:
+            case Input.Keys.S:
+                velocity.y = 0;
+                break;
+        }
+        return true;
+    }
+
+    //DON'T NEED ANY OF THE REST OF THESE METHODS
+
+    @Override
+    public boolean keyTyped(char character) {
+        return false;
+    }
+
+    @Override
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        return false;
+    }
+
+    @Override
+    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        return false;
+    }
+
+    @Override
+    public boolean touchDragged(int screenX, int screenY, int pointer) {
+        return false;
+    }
+
+    @Override
+    public boolean touchCancelled(int screenX, int screenY, int pointer, int button) {
+        return false;
+    }
+
+    @Override
+    public boolean mouseMoved (int screenX, int screenY) {
+        return false;
+    }
+
+    @Override
+    public boolean scrolled(float a, float b) {
+        return false;
     }
 
 }

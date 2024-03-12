@@ -1,5 +1,6 @@
 package com.mygdx.tilemaptest;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -48,6 +49,7 @@ public class Play implements Screen {
         float startX = 9 * player.getCollisionLayer().getTileWidth();
         float startY = (player.getCollisionLayer().getHeight() - 4) * player.getCollisionLayer().getTileHeight();
         player.setPosition(startX, startY);
+        Gdx.input.setInputProcessor(player);
     }
 
     @Override
